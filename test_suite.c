@@ -111,7 +111,6 @@ static void check_metadata(pool_pt pool,
     assert_non_null(pool->mem);
     assert_int_equal(pool->policy, policy);
     printf("Checking Range\n");
-    printf("%d %d \n",pool->total_size,total_size);
     assert_in_range(pool->total_size, total_size, total_size);
     printf("%d %d \n",pool->num_allocs,num_allocs);
     assert_in_range(pool->alloc_size, alloc_size, alloc_size);
@@ -2415,7 +2414,7 @@ void test_pool_stresstest(void **state) {
 
 int run_test_suite() {
     const struct CMUnitTest tests[] = {
-            //cmocka_unit_test(test_pool_store_smoketest),
+            cmocka_unit_test(test_pool_store_smoketest),
             //cmocka_unit_test(test_pool_smoketest),
 
             //cmocka_unit_test(test_pool_nonempty),
@@ -2423,7 +2422,7 @@ int run_test_suite() {
             //cmocka_unit_test_setup_teardown(test_pool_ff_metadata, pool_ff_setup, pool_ff_teardown),
             //cmocka_unit_test_setup_teardown(test_pool_bf_metadata, pool_bf_setup, pool_bf_teardown),
 
-            cmocka_unit_test_setup_teardown(test_pool_scenario00, pool_ff_setup, pool_ff_teardown),
+            //cmocka_unit_test_setup_teardown(test_pool_scenario00, pool_ff_setup, pool_ff_teardown),
             //cmocka_unit_test_setup_teardown(test_pool_scenario01, pool_ff_setup, pool_ff_teardown),
             //cmocka_unit_test_setup_teardown(test_pool_scenario02, pool_ff_setup, pool_ff_teardown),
             //cmocka_unit_test_setup_teardown(test_pool_scenario03, pool_ff_setup, pool_ff_teardown),
