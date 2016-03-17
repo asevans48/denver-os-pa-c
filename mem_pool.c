@@ -100,16 +100,10 @@ alloc_status mem_init() {
     // note: holds pointers only, other functions to allocate/deallocate
 
     if(!pool_store){
-        pool_store = (pool_mgr_pt *) malloc(sizeof(pool_mgr_pt) * pool_store_capacity);
-        for(size_t i = 0 ; i < pool_store_capacity;i++){
-            pool_mgr_pt newMgr;
-            newMgr->total_nodes = 0;
-            newMgr->node_heap = NULL;
-            newMgr->used_nodes = 0;
-            newMgr->gap_ix = NULL;
-            newMgr->gap_ix_capacity = 0;
-            newMgr->pool = NULL
-            pool_store[i]= newMgr;
+        pool_store_capacity = MEM_POOL_STORE_INIT_CAPACITY;
+        pool_store = (pool_mgr_pt *) malloc(sizeof(pool_pt) * MEM_POOL_STORE_INIT_CAPACITY);
+        for(size_t t =0; t< MEM_POOL_STORE_INIT_CAPACITY;t++){
+            pool_store[t] = NULL;
         }
         return ALLOC_OK;
     }
@@ -126,11 +120,26 @@ alloc_status mem_free() {
     if(pool_store != NULL){
         for(size_t i = 0; i< pool_store_size;i++){
             if(pool_store[i] != NULL) {
-                mem_pool_close(pool_store[i]);
+
+                for(size_t i = pool_store[i]->pool.num_gaps ; i >= 0; i--){
+                    free(&pool_store[i]->gap_ix[i]);
+                }
+
+                mem_pool_close(&pool_store[i]->pool);
+                node_pt pt = pool_store[i]->node_heap;
+                for(size_t i = pool_store[i]->total_nodes; i >= 0; i--){
+                    free(&pool_store[i]->node_heap[i]);
+                }
+
                 free(&pool_store[i]);
+                pool_store[i] = NULL;
             }
         }
+        free(pool_store);
         pool_store = NULL;
+        pool_store_size = 0;
+        pool_store_capacity = MEM_POOL_STORE_INIT_CAPACITY;
+        return ALLOC_OK;
     }
 
     return ALLOC_CALLED_AGAIN;
@@ -154,80 +163,98 @@ pool_pt mem_pool_open(size_t size, alloc_policy policy) {
     //   initialize pool mgr
     //   link pool mgr to pool store
     // return the address of the mgr, cast to (pool_pt)
-
+    int idx = 0;
     if(!pool_store){
         if(mem_init() == ALLOC_CALLED_AGAIN){
             return NULL;
         }
     }else{
         _mem_resize_pool_store();
-        int idx = 0;
         while(pool_store[idx] != NULL){
             idx +=1;
         }
 
+        if(idx >= pool_store_capacity){
+            printf("NEW POOL NOT FOUND\n");
+            return NULL;
+        }
+
         pool_t newPool;
         newPool.alloc_size = 0;
-        newPool.mem = NULL;
+        newPool.mem = (char *) malloc(sizeof(char *) *size);
         newPool.num_allocs = 0;
-        newPool.num_gaps = 0;
+        newPool.num_gaps = 1;
         newPool.policy = policy;
         newPool.total_size = size;
-        pool_mgr_pt newMgr = pool_store[idx];
-        newMgr->pool = newPool;
+        pool_store[idx] = (pool_mgr_pt) malloc(sizeof(pool_mgr_t));
 
-        if(&newMgr->pool == NULL){
-            newMgr->pool = NULL;
-            free(&newPool);
+        pool_store[idx]->pool = newPool;
+
+        pool_store[idx]->gap_ix = (gap_pt) malloc(sizeof(gap_t)*MEM_GAP_IX_INIT_CAPACITY);
+        pool_store[idx]->node_heap = (node_pt) malloc(sizeof(node_t) * MEM_NODE_HEAP_INIT_CAPACITY);
+        pool_store[idx]->total_nodes = MEM_NODE_HEAP_INIT_CAPACITY;
+        pool_store[idx]->gap_ix_capacity = MEM_GAP_IX_INIT_CAPACITY;
+        pool_store[idx]->used_nodes = 1;
+
+
+        if(&pool_store[idx]->pool == NULL){
+            printf("FAILED TO ALLOCATE POOL\n");
+            free(&pool_store[idx]->pool);
             return NULL;
         }
 
-        node_pt heap = (node_pt) malloc(sizeof(node_pt) * MEM_NODE_HEAP_INIT_CAPACITY);
         for(size_t i =0 ; i< MEM_NODE_HEAP_INIT_CAPACITY; i++){
-            heap[i] = NULL;
+            node_t newNode;
+            newNode.allocated = 0;
+            alloc_t alloc;
+            alloc.mem = NULL;
+            alloc.size = 0;
+            newNode.alloc_record = alloc;
+            if(i ==0){
+                newNode.used = 1;
+            }else{
+                newNode.used = 0;
+            }
+            pool_store[idx]->node_heap[i] = newNode;
         }
-        node_t nd;
-        nd.alloc_record = NULL;
-        nd.allocated = 0;
-        nd.next = NULL;
-        nd.prev = NULL;
-        nd.used = 1;
-        heap[0] = nd;
 
-        newMgr->node_heap = heap;
-        if(&newMgr->node_heap == NULL){
-            pool_t pl = newMgr->pool;
-            newMgr->pool = NULL;
-            free(&pl);
+        if(pool_store[idx]->node_heap == NULL){
+            printf("NODE HEAP NOT SET\n");
+            free(&pool_store[idx]->pool);
             return NULL;
         }
 
-        gap_pt gap_idx = (gap_pt) malloc(sizeof(gap_pt)*MEM_GAP_IX_INIT_CAPACITY);
 
         for(size_t i = 0; i < MEM_GAP_IX_INIT_CAPACITY; i++){
-            gap_idx[i] = NULL;
+            if(i ==0){
+                gap_t gp;
+                gp.node = &(pool_store[idx]->node_heap[0]);
+                gp.size = pool_store[idx]->pool.total_size;
+                pool_store[idx]->gap_ix[0] = gp;
+            }else {
+                gap_t gp;
+                gp.size = 0;
+                gp.node = NULL;
+                pool_store[idx]->gap_ix[i] = gp;
+            }
         }
 
-        gap_t gp;
-        gp.node = &nd;
-        gp.size = size;
-        gap_idx[0] = gp;
 
-        newMgr->gap_ix = gap_idx;
-        if(newMgr->gap_ix == NULL){
-            node_pt  nd = newMgr->node_heap;
+        if(pool_store[idx]->gap_ix == NULL){
+            node_pt  nd = pool_store[idx]->node_heap;
 
             for(size_t i = 0; i < MEM_NODE_HEAP_INIT_CAPACITY; i++){
                 free(&nd[i]);
             }
 
-            newMgr->node_heap = NULL;
-            pool_t pl = newMgr->pool;
-            newMgr->pool = NULL;
-            free(&pl);
+            pool_store[idx]->node_heap = NULL;
+            pool_t pl = pool_store[idx]->pool;
+            free(pl.mem);
+            return NULL;
         }
     }
-    return (pool_pt) pool_store;
+    pool_pt pt =&(pool_store[idx]->pool);
+    return pt;
 }
 
 alloc_status mem_pool_close(pool_pt pool) {
@@ -242,41 +269,51 @@ alloc_status mem_pool_close(pool_pt pool) {
     // note: don't decrement pool_store_size, because it only grows
     // free mgr
 
-    pool_mgr_pt pmt = *pool_store;
+    pool_mgr_pt pmt = (pool_mgr_pt) pool_store;
 
     if(pmt != NULL){
-        if(pmt->pool.num_gaps > 0){
-            //free gap IDX
-            for(size_t i = 0; i < pmt->pool.num_gaps && &pmt[i] != NULL;i++){
-                gap_pt gpt = &pmt->gap_ix[i];
-                gpt->node = NULL;
-                free(gpt);
-            }
+        printf("\n%d %d\n",pool->num_allocs,pool->num_gaps);
+        unsigned int allocs = 0;
+        unsigned int gaps = 1;
+        if(pool->num_allocs != allocs && pool->num_gaps == gaps){
+            return ALLOC_NOT_FREED;
         }
 
-        if(pmt->total_nodes > 0){
-            //free nodes
-            for(size_t i = 0; i < pmt->total_nodes && &pmt->node_heap[i] != NULL; i++){
-                if(&pmt->node_heap[i].alloc_record != NULL){
-                    if(pmt->node_heap[i].alloc_record.mem != NULL){
-                        free(pmt->node_heap[i].alloc_record.mem);
-                    }
-                    free(&pmt->node_heap[i].alloc_record);
-                    pmt->node_heap[i].alloc_record = NULL;
+        free(pool->mem);
+
+        for(size_t i = 0; i < pmt->total_nodes && &pmt->node_heap[i] != NULL; i++){
+            if(&pmt->node_heap[i].alloc_record != NULL){
+                if(pmt->node_heap[i].alloc_record.mem != NULL){
+                    free(pmt->node_heap[i].alloc_record.mem);
                 }
-                pmt->node_heap[i].next = NULL;
-                pmt->node_heap[i].prev = NULL;
-                free(&pmt->node_heap[i]);
-                pmt->node_heap[i] = NULL;
+                free(&pmt->node_heap[i].alloc_record);
+                alloc_pt alloc = NULL;
+                pmt->node_heap[i].alloc_record = *alloc;
             }
+            pmt->node_heap[i].next = NULL;
+            pmt->node_heap[i].prev = NULL;
+            free(&pmt->node_heap[i]);
+        }
+        free(pmt->node_heap);
+
+        //free gap IDX
+        for(size_t i = 0; i < pmt->pool.num_gaps && &pmt[i] != NULL;i++){
+            gap_pt gpt = &pmt->gap_ix[i];
+            gpt->node = NULL;
+            free(gpt);
         }
 
-        if(&pmt->pool != NULL) {
-            if (pmt->pool.mem != NULL) {
-                free(pmt->pool.mem);
-            }
-            free(&pmt->pool);
+
+        free(pmt->gap_ix);
+
+        if(&pool != NULL) {
+            free(pool);
+            pool = NULL;
         }
+
+        pmt= NULL;
+        free(pmt);
+
 
         return ALLOC_OK;
     }
@@ -308,13 +345,15 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
     //   add to gap index
     //   check if successful
     // return allocation record by casting the node to (alloc_pt)
+
     pool_mgr_pt pmt = (pool_mgr_pt) pool;
+
     if(pool->num_gaps > 0){
         _mem_resize_node_heap(pmt);
 
         if(pmt->used_nodes < pmt->total_nodes){
-            int idx =0;
-            int bestIdx = 0;
+            size_t idx =0;
+            size_t bestIdx = 0;
             unsigned int bestSize = pmt->pool.total_size;
             while(idx < pmt->pool.num_gaps){
                 if(pmt->gap_ix[idx].size >= size){
@@ -330,9 +369,94 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
                     idx += 1;
                 }
             }
+            idx = bestIdx;
+
+            if(idx < pmt->pool.num_gaps){
+                //assign new allocation
+                node_pt bestNode = pmt->gap_ix[idx].node;
+                size_t remaining = pmt->gap_ix->size - size;
+
+                _mem_remove_from_gap_ix(pmt,size,bestNode);
+
+                bestNode->allocated = 1;
+                bestNode->alloc_record.size = size;
+                bestNode->alloc_record.mem = pmt->pool.mem;
+                pmt->pool.alloc_size += size;
+
+
+
+                //take remaining and assign new gap if so
+                if(remaining > 0){
+                    //get new node
+                    size_t ridx = 0;
+                    while(idx < pmt->total_nodes && pmt->node_heap[ridx].used == 1){
+                        ridx += 1;
+                    }
+
+                    if(idx < pmt->total_nodes && pmt->node_heap[ridx].used == 0) {
+                        if(&pmt->node_heap[ridx] == NULL){
+                            node_pt nd;
+                            nd->used = 1;
+                            nd->allocated = 0;
+                            alloc_t  alloc;
+                            alloc.mem = pool->mem;
+                            alloc.size = 0;
+                            nd->alloc_record = alloc;
+                        }else{
+                            pmt->node_heap[ridx].alloc_record.size = 0;
+                            pmt->node_heap[ridx].alloc_record.mem = pool->mem;
+                            pmt->node_heap[ridx].used = 1;
+                        }
+                        pmt->used_nodes += 1;
+
+                        //add to gap_ix
+                        node_pt ng = &pmt->node_heap[ridx];
+                        if(_mem_add_to_gap_ix(pmt, remaining,ng) == ALLOC_FAIL){
+                            printf("FAILED TO ADD TO GAPS\n");
+                            return NULL;
+                        }
+
+                        //reset pointers
+                        //set next of gap to actual next
+                        ng->next = bestNode->next;
+                        if(bestNode->next != NULL){
+                            bestNode->next->prev = ng;
+                        }
+
+                        ng->prev = bestNode;
+                        bestNode->next = ng;
+
+                        //check next to see if gap and fold
+                        if(ng->next != NULL && ng->next->allocated == 0 && ng->next->used ==1){
+                            size_t gapIdx = 0;
+                            while(gapIdx < pool->num_gaps && &pmt->gap_ix[gapIdx] != NULL && pmt->gap_ix[gapIdx].node != pmt->node_heap[idx].next){
+                                gapIdx += 1;
+                            }
+
+                            //roll gap
+                            if(gapIdx < pool->num_gaps) {
+                                pmt->gap_ix[pmt->pool.num_gaps - 1].size += pmt->gap_ix[gapIdx].size;
+                                pmt->gap_ix[gapIdx].node->used = 0;
+                                _mem_remove_from_gap_ix(pmt,pmt->gap_ix[gapIdx].size,pmt->gap_ix[gapIdx].node);
+                                pmt->used_nodes -= 1;
+                            }else{
+                                printf("Failed to Find Next Gap\n");
+                                return NULL;
+                            }
+                        }
+
+                    }else{
+                        printf("IDX > Available Nodes\n");
+                        return NULL;
+                    }
+                }
+                bestNode->alloc_record.mem = (char *) malloc(sizeof(char)*size);
+                pmt->pool.num_allocs += 1;
+                return (alloc_pt) bestNode;
+            }
         }
     }
-
+    printf("WARNING: No Allocation\n");
     return NULL;
 }
 
@@ -385,8 +509,102 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
     // add the resulting node to the gap index
     // check success
 
-    pool_mgr_pt pmpt = (pool_mgr_pt) pool;
+    pool_mgr_pt pmt = (pool_mgr_pt) pool;
 
+    //get allocation node and heap index
+    node_pt  node = (node_pt) alloc;
+
+    if(node != NULL){
+
+        //setup gap vars
+        size_t gap_size = node->alloc_record.size;
+        _mem_add_to_gap_ix(pmt,gap_size,node);
+        pmt->pool.num_allocs -= 1;
+        pmt->pool.alloc_size -= node->alloc_record.size;
+
+        //zero out node vars
+        node->allocated = 0;
+        //look for next gaps and roll
+        while(node->next != NULL && node->next->allocated == 0 && node->next->used == 1) {
+            //get gap from gap index
+            size_t gapIdx = pool->num_gaps;
+            size_t nextGapIdx = pool->num_gaps;
+            for (size_t i = 0; i < pmt->gap_ix_capacity; i++) {
+                if (pmt->gap_ix[i].node == node) {
+                    gapIdx = i;
+                }else if(pmt->gap_ix[i].node == node->next){
+                   nextGapIdx = i;
+                }
+            }
+
+            printf("GAP IDX: %lu -> %lu , %lu -> %lu \n",gapIdx,pmt->gap_ix[gapIdx].size,nextGapIdx,pmt->gap_ix[nextGapIdx].size);
+            if (gapIdx < pmt->pool.num_gaps && gapIdx < pool->num_gaps) {
+                //remove gap and reset size
+                pmt->gap_ix[gapIdx].size += pmt->gap_ix[nextGapIdx].size;
+
+
+                node_pt next = node->next;
+                if(next->next != NULL){
+                   next->prev = node;
+                }
+                node->next = next->next;
+                next->next= NULL;
+                next->prev = NULL;
+                next->used = 0;
+                _mem_remove_from_gap_ix(pmt,pmt->gap_ix[nextGapIdx].size,next);
+                pmt->used_nodes -= 1;
+            } else {
+                printf("Failed to Roll Into Next Node\n");
+                return ALLOC_FAIL;
+            }
+
+        }
+
+        //look for previous gaps and roll or add to gap index
+        while(node->prev != NULL && node->prev->used == 1 && node->prev->allocated ==0){
+            //get gap from gap index
+            size_t gapIdx = pool->num_gaps;
+            size_t prevGapIdx = pool->num_gaps;
+            for (size_t i = 0; i < pmt->gap_ix_capacity; i++) {
+                if (pmt->gap_ix[i].node == node) {
+                    gapIdx = i;
+                }else if(pmt->gap_ix[i].node == node->prev){
+                    prevGapIdx = i;
+                }
+            }
+
+            if(gapIdx < pmt->pool.num_gaps && prevGapIdx < pmt->pool.num_gaps){
+                pmt->gap_ix[prevGapIdx].size += pmt->gap_ix[gapIdx].size;
+
+                node_pt oldNode = node;
+                node = oldNode->prev;
+
+                //reset pointers
+                node->next = oldNode->next;
+
+                if(oldNode != NULL){
+                    oldNode->next->prev = node;
+                }
+                oldNode->next = NULL;
+                oldNode->prev = NULL;
+
+                //reset values
+                oldNode->used = 0;
+                _mem_remove_from_gap_ix(pmt,pmt->gap_ix[gapIdx].size,oldNode);
+                pmt->used_nodes -= 1;
+
+            }else{
+                return ALLOC_FAIL;
+            }
+
+        }
+
+        return ALLOC_OK;
+
+    }
+
+
+    printf("Allocation FAILED\n");
     return ALLOC_FAIL;
 }
 
@@ -401,6 +619,35 @@ void mem_inspect_pool(pool_pt pool,pool_segment_pt *segments, unsigned *num_segm
                     *segments = segs;
                     *num_segments = pool_mgr->used_nodes;
      */
+    pool_mgr_pt  pmt = (pool_mgr_pt) pool;
+    pool_segment_pt  segs = (pool_segment_pt) malloc(sizeof(pool_segment_t) * pmt->used_nodes);
+    *num_segments = pmt->used_nodes;
+
+    if(segments){
+        size_t idx = 0;
+        node_pt node;
+        for(size_t i =0 ; i < pmt->total_nodes ; i++){
+            if(&pmt->node_heap[i] != NULL && pmt->node_heap[i].used == 1) {
+                node = &pmt->node_heap[i];
+                pool_segment_t pst;
+                if (!node->allocated) {
+                    size_t idx  = 0;
+                    while(idx < pmt->pool.num_gaps && pmt->gap_ix[idx].node != node){
+                        idx +=1;
+                    }
+                    pst.size = pmt->gap_ix[idx].size;
+                    pst.allocated = node->allocated;
+                } else {
+                    pst.size = node->alloc_record.size;
+                    pst.allocated = node->allocated;
+                }
+                segs[idx] = pst;
+                idx += 1;
+            }
+        }
+        *segments = segs;
+
+    }
 
 }
 
@@ -436,16 +683,19 @@ static alloc_status _mem_resize_pool_store() {
 
 static alloc_status _mem_resize_node_heap(pool_mgr_pt pool_mgr) {
     // see above
-    if(((float)pool_mgr->used_nodes / MEM_NODE_HEAP_FILL_FACTOR) > MEM_NODE_HEAP_FILL_FACTOR){
+    if(((float)pool_mgr->used_nodes / pool_mgr->total_nodes) > MEM_NODE_HEAP_FILL_FACTOR){
         pool_mgr->total_nodes *= MEM_NODE_HEAP_EXPAND_FACTOR;
         pool_mgr->node_heap = (node_pt) realloc(pool_mgr->node_heap, sizeof(node_pt) * pool_mgr->total_nodes);
 
         for(size_t i = pool_mgr->used_nodes ; i < pool_mgr->total_nodes; i++){
-            pool_mgr->node_heap[i] = NULL;
+            node_t nd;
+            nd.used = 0;
+            nd.allocated = 0;
+            pool_mgr->node_heap[i] = nd;
         }
 
-        if(pool_mgr != NULL){
-            return ALLOC_OK;
+        if(pool_mgr == NULL){
+            return ALLOC_FAIL;
         }
     }
     return ALLOC_OK;
@@ -453,13 +703,16 @@ static alloc_status _mem_resize_node_heap(pool_mgr_pt pool_mgr) {
 
 static alloc_status _mem_resize_gap_ix(pool_mgr_pt pool_mgr) {
     // see above
-    if(((float)pool_mgr->pool.num_gaps /MEM_GAP_IX_FILL_FACTOR) > MEM_GAP_IX_FILL_FACTOR){
+    if(((float)pool_mgr->pool.num_gaps /pool_mgr->gap_ix_capacity) > MEM_GAP_IX_FILL_FACTOR){
         unsigned int oldSize = pool_mgr->gap_ix_capacity;
         pool_mgr->gap_ix_capacity *= MEM_GAP_IX_EXPAND_FACTOR;
         pool_mgr->gap_ix = (gap_pt) realloc(pool_mgr->gap_ix,sizeof(gap_pt)*pool_mgr->gap_ix_capacity);
 
         for(size_t i = oldSize; i < pool_mgr->gap_ix_capacity;i++){
-            pool_mgr->gap_ix[i] = NULL;
+            gap_t gp;
+            gp.node = NULL;
+            gp.size = 0;
+            pool_mgr->gap_ix[i] = gp;
         }
         if(pool_mgr->gap_ix != NULL) {
             return ALLOC_OK;
@@ -478,8 +731,24 @@ static alloc_status _mem_add_to_gap_ix(pool_mgr_pt pool_mgr,
     // update metadata (num_gaps)
     // sort the gap index (call the function)
     // check success
+    _mem_resize_gap_ix(pool_mgr);
 
-    return ALLOC_OK;
+    gap_t gap;
+    gap.node = node;
+    gap.size = size;
+
+
+    pool_mgr->gap_ix[pool_mgr->pool.num_gaps] = gap;
+
+    gap_pt cg = &pool_mgr->gap_ix[pool_mgr->pool.num_gaps];
+
+    if(cg->node != node){
+        printf("Failed to Allocate to Gaps\n");
+        return ALLOC_FAIL;
+    }
+
+    pool_mgr->pool.num_gaps += 1;
+    return _mem_sort_gap_ix(pool_mgr);
 }
 
 static alloc_status _mem_remove_from_gap_ix(pool_mgr_pt pool_mgr,
@@ -491,7 +760,27 @@ static alloc_status _mem_remove_from_gap_ix(pool_mgr_pt pool_mgr,
     //    this effectively deletes the chosen node
     // update metadata (num_gaps)
     // zero out the element at position num_gaps!
+    size_t idx =0;
+    while(idx < pool_mgr->pool.num_gaps && pool_mgr->gap_ix[idx].node != node){
+        idx += 1;
+    }
 
+    if(idx == pool_mgr->pool.num_gaps){
+        printf("Failed to Remove Gap\n");
+        return ALLOC_FAIL;
+    }
+
+    for(size_t i = idx;i < pool_mgr->pool.num_gaps;i++){
+        pool_mgr->gap_ix[i] = pool_mgr->gap_ix[i+1];
+    }
+
+    gap_t gap;
+    gap.size =0;
+    gap.node = NULL;
+    pool_mgr->gap_ix[pool_mgr->pool.num_gaps] = gap;
+
+
+    pool_mgr->pool.num_gaps -= 1;
     return ALLOC_OK;
 }
 
@@ -504,7 +793,24 @@ static alloc_status _mem_sort_gap_ix(pool_mgr_pt pool_mgr) {
     //    node with a lower address of pool allocation address (mem)
     //       swap them (by copying) (remember to use a temporary variable)
 
-    return ALLOC_FAIL;
+    size_t start = pool_mgr->pool.num_gaps - 1;
+    while(start > 0 && pool_mgr->gap_ix[start].size < pool_mgr->gap_ix[start -1].size){
+        gap_t temp = pool_mgr->gap_ix[start];
+        pool_mgr->gap_ix[start] = pool_mgr->gap_ix[start -1];
+        start -=1;
+        pool_mgr->gap_ix[start] = temp;
+    }
+
+
+    //using start loop until lowest address
+    while(start > 0 && pool_mgr->gap_ix[start].size == pool_mgr->gap_ix[start - 1].size && &pool_mgr->gap_ix[start] < &pool_mgr->gap_ix[start -1]){
+        gap_t temp = pool_mgr->gap_ix[start];
+        pool_mgr->gap_ix[start] = pool_mgr->gap_ix[start -1];
+        start -=1;
+        pool_mgr->gap_ix[start] = temp;
+    }
+
+    return ALLOC_OK;
 }
 
 

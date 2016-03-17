@@ -170,13 +170,13 @@ static void test_pool_smoketest(void **state) {
 
         POOL_POLICY = (i % 2) ? FIRST_FIT : BEST_FIT;
         pool_size *= (i + 1);
-
         status = mem_init();
         assert_int_equal(status, ALLOC_OK);
 
         INFO("Allocating pool of %lu bytes with policy %s\n",
              (long) pool_size, (POOL_POLICY == FIRST_FIT) ? "FIRST_FIT" : "BEST_FIT");
         pool = mem_pool_open(pool_size, POOL_POLICY);
+        printf("Asserting\n");
         assert_non_null(pool);
         assert_non_null(pool->mem);
         assert_int_equal(pool->policy, POOL_POLICY);
@@ -207,6 +207,7 @@ static void test_pool_nonempty(void **state) {
     INFO("Allocating pool of %lu bytes with policy %s\n",
          (long) pool_size, (POOL_POLICY == FIRST_FIT) ? "FIRST_FIT" : "BEST_FIT");
     pool = mem_pool_open(pool_size, POOL_POLICY);
+
     assert_non_null(pool);
     assert_non_null(pool->mem);
     assert_int_equal(pool->policy, POOL_POLICY);
@@ -221,6 +222,7 @@ static void test_pool_nonempty(void **state) {
     assert_non_null(alloc->mem);
     assert_in_range(alloc->size, 100, 100);
 
+
     INFO("Trying to close pool...");
     status = mem_pool_close(pool);
     assert_int_equal(status, ALLOC_NOT_FREED);
@@ -228,6 +230,7 @@ static void test_pool_nonempty(void **state) {
 
     INFO("Deallocating 100 bytes\n");
     status = mem_del_alloc(pool, alloc);
+    print_pool(pool);
     assert_int_equal(status, ALLOC_OK);
 
     INFO("Closing pool\n");
@@ -2414,13 +2417,13 @@ void test_pool_stresstest(void **state) {
 
 int run_test_suite() {
     const struct CMUnitTest tests[] = {
-            cmocka_unit_test(test_pool_store_smoketest),
+            //cmocka_unit_test(test_pool_store_smoketest),
             //cmocka_unit_test(test_pool_smoketest),
 
             //cmocka_unit_test(test_pool_nonempty),
 
             //cmocka_unit_test_setup_teardown(test_pool_ff_metadata, pool_ff_setup, pool_ff_teardown),
-            //cmocka_unit_test_setup_teardown(test_pool_bf_metadata, pool_bf_setup, pool_bf_teardown),
+            cmocka_unit_test_setup_teardown(test_pool_bf_metadata, pool_bf_setup, pool_bf_teardown),
 
             //cmocka_unit_test_setup_teardown(test_pool_scenario00, pool_ff_setup, pool_ff_teardown),
             //cmocka_unit_test_setup_teardown(test_pool_scenario01, pool_ff_setup, pool_ff_teardown),
