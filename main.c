@@ -32,7 +32,7 @@ void print_pool(pool_pt pool) {
 
 
     for (unsigned u = 0; u < size; u ++) {
-        printf("Used Status %d\n",segs[u].allocated);
+        printf("Used Status %lu\n",segs[u].allocated);
         printf("%10lu - %s\n", (unsigned long) segs[u].size, (segs[u].allocated) ? "alloc" : "gap");
     }
     free(segs);

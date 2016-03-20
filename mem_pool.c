@@ -210,11 +210,13 @@ pool_pt mem_pool_open(size_t size, alloc_policy policy) {
             alloc.mem = NULL;
             alloc.size = 0;
             newNode.alloc_record = alloc;
-            if(i ==0){
+            if(i == 0){
                 newNode.used = 1;
             }else{
                 newNode.used = 0;
             }
+            newNode.next = NULL;
+            newNode.prev = NULL;
             pool_store[idx]->node_heap[i] = newNode;
         }
 
@@ -272,7 +274,6 @@ alloc_status mem_pool_close(pool_pt pool) {
     pool_mgr_pt pmt = (pool_mgr_pt) pool_store;
 
     if(pmt != NULL){
-        printf("\n%d %d\n",pool->num_allocs,pool->num_gaps);
         unsigned int allocs = 0;
         unsigned int gaps = 1;
         if(pool->num_allocs != allocs && pool->num_gaps == gaps){
@@ -345,9 +346,7 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
     //   add to gap index
     //   check if successful
     // return allocation record by casting the node to (alloc_pt)
-
     pool_mgr_pt pmt = (pool_mgr_pt) pool;
-
     if(pool->num_gaps > 0){
         _mem_resize_node_heap(pmt);
 
@@ -357,7 +356,7 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
             unsigned int bestSize = pmt->pool.total_size;
             while(idx < pmt->pool.num_gaps){
                 if(pmt->gap_ix[idx].size >= size){
-                    if(pmt->pool.policy = FIRST_FIT){
+                    if(pool->policy != BEST_FIT){
                         bestIdx = idx;
                          break;
                     }else{
@@ -366,15 +365,20 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
                             bestSize = pmt->gap_ix[idx].size;
                         }
                     }
-                    idx += 1;
                 }
+                idx += 1;
             }
-            idx = bestIdx;
 
+            idx = bestIdx;
             if(idx < pmt->pool.num_gaps){
                 //assign new allocation
                 node_pt bestNode = pmt->gap_ix[idx].node;
-                size_t remaining = pmt->gap_ix->size - size;
+                size_t remaining = pmt->gap_ix[idx].size - size;
+
+                if(remaining > pool->total_size - pool->alloc_size){
+                    printf("Remaining Allocation Size Too Large\n");
+                    return NULL;
+                }
 
                 _mem_remove_from_gap_ix(pmt,size,bestNode);
 
@@ -387,21 +391,16 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
 
                 //take remaining and assign new gap if so
                 if(remaining > 0){
+
                     //get new node
                     size_t ridx = 0;
                     while(idx < pmt->total_nodes && pmt->node_heap[ridx].used == 1){
                         ridx += 1;
                     }
 
-                    if(idx < pmt->total_nodes && pmt->node_heap[ridx].used == 0) {
+                    if(ridx < pmt->total_nodes && pmt->node_heap[ridx].used == 0) {
                         if(&pmt->node_heap[ridx] == NULL){
-                            node_pt nd;
-                            nd->used = 1;
-                            nd->allocated = 0;
-                            alloc_t  alloc;
-                            alloc.mem = pool->mem;
-                            alloc.size = 0;
-                            nd->alloc_record = alloc;
+                           return NULL;
                         }else{
                             pmt->node_heap[ridx].alloc_record.size = 0;
                             pmt->node_heap[ridx].alloc_record.mem = pool->mem;
@@ -411,6 +410,15 @@ alloc_pt mem_new_alloc(pool_pt pool, size_t size) {
 
                         //add to gap_ix
                         node_pt ng = &pmt->node_heap[ridx];
+                        ng->used = 1;
+                        ng->allocated = 0;
+                        ng->next = NULL;
+                        ng->prev = NULL;
+                        alloc_t nalloc;
+                        nalloc.size =0;
+                        nalloc.mem = pmt->pool.mem;
+                        ng->alloc_record = nalloc;
+
                         if(_mem_add_to_gap_ix(pmt, remaining,ng) == ALLOC_FAIL){
                             printf("FAILED TO ADD TO GAPS\n");
                             return NULL;
@@ -515,12 +523,12 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
     node_pt  node = (node_pt) alloc;
 
     if(node != NULL){
-
         //setup gap vars
         size_t gap_size = node->alloc_record.size;
         _mem_add_to_gap_ix(pmt,gap_size,node);
         pmt->pool.num_allocs -= 1;
         pmt->pool.alloc_size -= node->alloc_record.size;
+
 
         //zero out node vars
         node->allocated = 0;
@@ -537,7 +545,6 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
                 }
             }
 
-            printf("GAP IDX: %lu -> %lu , %lu -> %lu \n",gapIdx,pmt->gap_ix[gapIdx].size,nextGapIdx,pmt->gap_ix[nextGapIdx].size);
             if (gapIdx < pmt->pool.num_gaps && gapIdx < pool->num_gaps) {
                 //remove gap and reset size
                 pmt->gap_ix[gapIdx].size += pmt->gap_ix[nextGapIdx].size;
@@ -545,7 +552,7 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
 
                 node_pt next = node->next;
                 if(next->next != NULL){
-                   next->prev = node;
+                   next->next->prev = node;
                 }
                 node->next = next->next;
                 next->next= NULL;
@@ -562,7 +569,7 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
 
         //look for previous gaps and roll or add to gap index
         while(node->prev != NULL && node->prev->used == 1 && node->prev->allocated ==0){
-            //get gap from gap index
+            // /get gap from gap index
             size_t gapIdx = pool->num_gaps;
             size_t prevGapIdx = pool->num_gaps;
             for (size_t i = 0; i < pmt->gap_ix_capacity; i++) {
@@ -582,7 +589,7 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
                 //reset pointers
                 node->next = oldNode->next;
 
-                if(oldNode != NULL){
+                if(oldNode->next != NULL){
                     oldNode->next->prev = node;
                 }
                 oldNode->next = NULL;
@@ -598,6 +605,7 @@ alloc_status mem_del_alloc(pool_pt pool, alloc_pt alloc) {
             }
 
         }
+
 
         return ALLOC_OK;
 
@@ -619,34 +627,40 @@ void mem_inspect_pool(pool_pt pool,pool_segment_pt *segments, unsigned *num_segm
                     *segments = segs;
                     *num_segments = pool_mgr->used_nodes;
      */
+
     pool_mgr_pt  pmt = (pool_mgr_pt) pool;
-    pool_segment_pt  segs = (pool_segment_pt) malloc(sizeof(pool_segment_t) * pmt->used_nodes);
+    pool_segment_pt  segPtrs =  calloc(pmt->used_nodes,sizeof(pool_segment_t));
     *num_segments = pmt->used_nodes;
 
-    if(segments){
-        size_t idx = 0;
-        node_pt node;
-        for(size_t i =0 ; i < pmt->total_nodes ; i++){
-            if(&pmt->node_heap[i] != NULL && pmt->node_heap[i].used == 1) {
-                node = &pmt->node_heap[i];
-                pool_segment_t pst;
-                if (!node->allocated) {
-                    size_t idx  = 0;
-                    while(idx < pmt->pool.num_gaps && pmt->gap_ix[idx].node != node){
-                        idx +=1;
-                    }
-                    pst.size = pmt->gap_ix[idx].size;
-                    pst.allocated = node->allocated;
-                } else {
-                    pst.size = node->alloc_record.size;
-                    pst.allocated = node->allocated;
-                }
-                segs[idx] = pst;
-                idx += 1;
-            }
-        }
-        *segments = segs;
+    if(pmt->used_nodes > 0 && segPtrs != NULL){
 
+        if(segPtrs) {
+            size_t idx = 0;
+            node_pt node = &pmt->node_heap[0];//head node
+            while (node->used == 0) {
+                node = node->next;
+            }
+
+            pool_segment_pt  allocSeg = segPtrs;
+
+            for (size_t i = 0; i < pmt->used_nodes; i++) {
+                if (node->allocated == 1) {
+                    allocSeg->size = node->alloc_record.size;
+                } else {
+                    gap_pt gp = &pmt->gap_ix[0];
+                    while (gp->node != node) {
+                        gp++;
+                    }
+                    allocSeg->size = gp->size;
+                }
+                allocSeg->allocated = node->allocated;
+                allocSeg++;
+                node = node->next;
+
+            }
+
+            *segments = segPtrs;
+        }
     }
 
 }
@@ -803,7 +817,7 @@ static alloc_status _mem_sort_gap_ix(pool_mgr_pt pool_mgr) {
 
 
     //using start loop until lowest address
-    while(start > 0 && pool_mgr->gap_ix[start].size == pool_mgr->gap_ix[start - 1].size && &pool_mgr->gap_ix[start] < &pool_mgr->gap_ix[start -1]){
+    while(start > 0 && pool_mgr->gap_ix[start].size == pool_mgr->gap_ix[start - 1].size && pool_mgr->gap_ix[start].node->alloc_record.mem < pool_mgr->gap_ix[start -1].node->alloc_record.mem){
         gap_t temp = pool_mgr->gap_ix[start];
         pool_mgr->gap_ix[start] = pool_mgr->gap_ix[start -1];
         start -=1;
