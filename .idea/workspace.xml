@@ -14,8 +14,6 @@
     <list default="true" id="d8ab000a-c14a-4b6f-8692-c4e2fe441193" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmocka.h" afterPath="$PROJECT_DIR$/cmocka.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.c" afterPath="$PROJECT_DIR$/main.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mem_pool.c" afterPath="$PROJECT_DIR$/mem_pool.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mem_pool.h" afterPath="$PROJECT_DIR$/mem_pool.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test_suite.c" afterPath="$PROJECT_DIR$/test_suite.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test_suite.h" afterPath="$PROJECT_DIR$/test_suite.h" />
@@ -38,14 +36,14 @@
     <favorites_list name="denver-os-pa-c" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.47727272">
+    <splitter split-orientation="horizontal" split-proportion="0.6382153">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file leaf-file-name="main.c" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/main.c">
               <provider selected="true" editor-type-id="text-editor">
                 <state vertical-scroll-proportion="0.0">
-                  <caret line="34" column="31" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
+                  <caret line="33" column="28" selection-start-line="33" selection-start-column="28" selection-end-line="33" selection-end-column="28" />
                   <folding>
                     <element signature="e#0#18#0" expanded="true" />
                   </folding>
@@ -53,11 +51,98 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="test_suite.c" pinned="false" current-in-tab="true">
+          <file leaf-file-name="cmocka.h" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/cmocka.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="2079" column="0" selection-start-line="2079" selection-start-column="0" selection-end-line="2079" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#2665#2733#0" expanded="true" />
+                    <element signature="e#2757#2792#0" expanded="true" />
+                    <element signature="e#2947#2978#0" expanded="true" />
+                    <element signature="e#3037#3178#0" expanded="true" />
+                    <element signature="e#3805#3841#0" expanded="true" />
+                    <element signature="e#3966#4046#0" expanded="true" />
+                    <element signature="e#5784#5976#0" expanded="true" />
+                    <element signature="e#6057#6523#0" expanded="true" />
+                    <element signature="e#6593#7164#0" expanded="true" />
+                    <element signature="e#7251#7819#0" expanded="true" />
+                    <element signature="e#7996#8494#0" expanded="true" />
+                    <element signature="e#8688#9101#0" expanded="true" />
+                    <element signature="e#11006#11688#0" expanded="true" />
+                    <element signature="e#11939#12439#0" expanded="true" />
+                    <element signature="e#12588#13332#0" expanded="true" />
+                    <element signature="e#13584#14092#0" expanded="true" />
+                    <element signature="e#14249#15001#0" expanded="true" />
+                    <element signature="e#15262#15917#0" expanded="true" />
+                    <element signature="e#16080#16990#0" expanded="true" />
+                    <element signature="e#17210#17868#0" expanded="true" />
+                    <element signature="e#18039#18952#0" expanded="true" />
+                    <element signature="e#19220#19661#0" expanded="true" />
+                    <element signature="e#19796#20492#0" expanded="true" />
+                    <element signature="e#20712#21160#0" expanded="true" />
+                    <element signature="e#21303#22006#0" expanded="true" />
+                    <element signature="e#22238#22715#0" expanded="true" />
+                    <element signature="e#22854#23575#0" expanded="true" />
+                    <element signature="e#23784#24268#0" expanded="true" />
+                    <element signature="e#24415#25143#0" expanded="true" />
+                    <element signature="e#25364#25881#0" expanded="true" />
+                    <element signature="e#26032#26814#0" expanded="true" />
+                    <element signature="e#27035#27569#0" expanded="true" />
+                    <element signature="e#27728#28517#0" expanded="true" />
+                    <element signature="e#28751#29130#0" expanded="true" />
+                    <element signature="e#29247#29891#0" expanded="true" />
+                    <element signature="e#30042#30364#0" expanded="true" />
+                    <element signature="e#30556#30880#0" expanded="true" />
+                    <element signature="e#31823#32201#0" expanded="true" />
+                    <element signature="e#32363#32708#0" expanded="true" />
+                    <element signature="e#32875#33387#0" expanded="true" />
+                    <element signature="e#33669#33977#0" expanded="true" />
+                    <element signature="e#34151#34455#0" expanded="true" />
+                    <element signature="e#34588#34941#0" expanded="true" />
+                    <element signature="e#35170#35527#0" expanded="true" />
+                    <element signature="e#35772#36127#0" expanded="true" />
+                    <element signature="e#36348#36737#0" expanded="true" />
+                    <element signature="e#36974#37320#0" expanded="true" />
+                    <element signature="e#37494#37844#0" expanded="true" />
+                    <element signature="e#38030#38602#0" expanded="true" />
+                    <element signature="e#38788#39348#0" expanded="true" />
+                    <element signature="e#39546#40060#0" expanded="true" />
+                    <element signature="e#40331#40838#0" expanded="true" />
+                    <element signature="e#41117#41573#0" expanded="true" />
+                    <element signature="e#41732#42192#0" expanded="true" />
+                    <element signature="e#42881#42961#0" expanded="true" />
+                    <element signature="e#43032#43124#0" expanded="true" />
+                    <element signature="e#43195#43515#0" expanded="true" />
+                    <element signature="e#43659#44114#0" expanded="true" />
+                    <element signature="e#47011#48607#0" expanded="true" />
+                    <element signature="e#48847#50625#0" expanded="true" />
+                    <element signature="e#51925#52474#0" expanded="true" />
+                    <element signature="e#52569#52939#0" expanded="true" />
+                    <element signature="e#53044#53397#0" expanded="true" />
+                    <element signature="e#53504#53666#0" expanded="true" />
+                    <element signature="e#53828#53933#0" expanded="true" />
+                    <element signature="e#55641#56159#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="mem_pool.h" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/mem_pool.h">
+              <provider selected="true" editor-type-id="text-editor">
+                <state vertical-scroll-proportion="2.3072917">
+                  <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="test_suite.c" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/test_suite.c">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.68085104">
-                  <caret line="2464" column="0" selection-start-line="2464" selection-start-column="0" selection-end-line="2464" selection-end-column="0" />
+                <state vertical-scroll-proportion="0.0">
+                  <caret line="2456" column="0" selection-start-line="2456" selection-start-column="0" selection-end-line="2456" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -80,8 +165,8 @@
           <file leaf-file-name="mem_pool.c" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/mem_pool.c">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="3.2234042">
-                  <caret line="824" column="5" selection-start-line="824" selection-start-column="5" selection-end-line="824" selection-end-column="5" />
+                <state vertical-scroll-proportion="0.078125">
+                  <caret line="782" column="14" selection-start-line="782" selection-start-column="8" selection-end-line="782" selection-end-column="14" />
                   <folding>
                     <element signature="e#46#65#0" expanded="true" />
                   </folding>
@@ -103,12 +188,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
-        <option value="$PROJECT_DIR$/cmocka.h" />
-        <option value="$PROJECT_DIR$/test_suite.h" />
-        <option value="$PROJECT_DIR$/mem_pool.h" />
         <option value="$PROJECT_DIR$/main.c" />
         <option value="$PROJECT_DIR$/mem_pool.c" />
+        <option value="$PROJECT_DIR$/cmocka.h" />
         <option value="$PROJECT_DIR$/test_suite.c" />
+        <option value="$PROJECT_DIR$/test_suite.h" />
+        <option value="$PROJECT_DIR$/mem_pool.h" />
       </list>
     </option>
   </component>
@@ -118,10 +203,10 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="266" />
-    <option name="y" value="132" />
-    <option name="width" value="967" />
-    <option name="height" value="500" />
+    <option name="x" value="65" />
+    <option name="y" value="24" />
+    <option name="width" value="1301" />
+    <option name="height" value="744" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -228,16 +313,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="266" y="132" width="967" height="500" extended-state="0" />
-    <editor active="true" />
+    <frame x="65" y="24" width="1301" height="744" extended-state="6" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20785935" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20753267" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32238805" sideWeight="0.58877784" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39701492" sideWeight="0.65872407" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.6105528" sideWeight="0.5646329" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32238805" sideWeight="0.5734051" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1597015" sideWeight="0.64719445" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.6686567" sideWeight="0.57801694" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6105528" sideWeight="0.4353671" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.6686567" sideWeight="0.4219831" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -287,7 +372,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/test_suite.c</url>
-          <line>549</line>
+          <line>527</line>
           <option name="timeStamp" value="64" />
         </line-breakpoint>
       </breakpoints>
@@ -338,7 +423,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="35" column="14" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -384,7 +468,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="35" column="14" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -430,7 +513,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="35" column="14" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -458,7 +540,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="32" column="28" selection-start-line="32" selection-start-column="28" selection-end-line="32" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -665,10 +746,105 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mem_pool.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.078125">
+          <caret line="782" column="14" selection-start-line="782" selection-start-column="8" selection-end-line="782" selection-end-column="14" />
+          <folding>
+            <element signature="e#46#65#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="33" column="28" selection-start-line="33" selection-start-column="28" selection-end-line="33" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cmocka.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.45876288">
-          <caret line="2067" column="37" selection-start-line="2067" selection-start-column="37" selection-end-line="2067" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2079" column="0" selection-start-line="2079" selection-start-column="0" selection-end-line="2079" selection-end-column="0" />
+          <folding>
+            <element signature="e#2665#2733#0" expanded="true" />
+            <element signature="e#2757#2792#0" expanded="true" />
+            <element signature="e#2947#2978#0" expanded="true" />
+            <element signature="e#3037#3178#0" expanded="true" />
+            <element signature="e#3805#3841#0" expanded="true" />
+            <element signature="e#3966#4046#0" expanded="true" />
+            <element signature="e#5784#5976#0" expanded="true" />
+            <element signature="e#6057#6523#0" expanded="true" />
+            <element signature="e#6593#7164#0" expanded="true" />
+            <element signature="e#7251#7819#0" expanded="true" />
+            <element signature="e#7996#8494#0" expanded="true" />
+            <element signature="e#8688#9101#0" expanded="true" />
+            <element signature="e#11006#11688#0" expanded="true" />
+            <element signature="e#11939#12439#0" expanded="true" />
+            <element signature="e#12588#13332#0" expanded="true" />
+            <element signature="e#13584#14092#0" expanded="true" />
+            <element signature="e#14249#15001#0" expanded="true" />
+            <element signature="e#15262#15917#0" expanded="true" />
+            <element signature="e#16080#16990#0" expanded="true" />
+            <element signature="e#17210#17868#0" expanded="true" />
+            <element signature="e#18039#18952#0" expanded="true" />
+            <element signature="e#19220#19661#0" expanded="true" />
+            <element signature="e#19796#20492#0" expanded="true" />
+            <element signature="e#20712#21160#0" expanded="true" />
+            <element signature="e#21303#22006#0" expanded="true" />
+            <element signature="e#22238#22715#0" expanded="true" />
+            <element signature="e#22854#23575#0" expanded="true" />
+            <element signature="e#23784#24268#0" expanded="true" />
+            <element signature="e#24415#25143#0" expanded="true" />
+            <element signature="e#25364#25881#0" expanded="true" />
+            <element signature="e#26032#26814#0" expanded="true" />
+            <element signature="e#27035#27569#0" expanded="true" />
+            <element signature="e#27728#28517#0" expanded="true" />
+            <element signature="e#28751#29130#0" expanded="true" />
+            <element signature="e#29247#29891#0" expanded="true" />
+            <element signature="e#30042#30364#0" expanded="true" />
+            <element signature="e#30556#30880#0" expanded="true" />
+            <element signature="e#31823#32201#0" expanded="true" />
+            <element signature="e#32363#32708#0" expanded="true" />
+            <element signature="e#32875#33387#0" expanded="true" />
+            <element signature="e#33669#33977#0" expanded="true" />
+            <element signature="e#34151#34455#0" expanded="true" />
+            <element signature="e#34588#34941#0" expanded="true" />
+            <element signature="e#35170#35527#0" expanded="true" />
+            <element signature="e#35772#36127#0" expanded="true" />
+            <element signature="e#36348#36737#0" expanded="true" />
+            <element signature="e#36974#37320#0" expanded="true" />
+            <element signature="e#37494#37844#0" expanded="true" />
+            <element signature="e#38030#38602#0" expanded="true" />
+            <element signature="e#38788#39348#0" expanded="true" />
+            <element signature="e#39546#40060#0" expanded="true" />
+            <element signature="e#40331#40838#0" expanded="true" />
+            <element signature="e#41117#41573#0" expanded="true" />
+            <element signature="e#41732#42192#0" expanded="true" />
+            <element signature="e#42881#42961#0" expanded="true" />
+            <element signature="e#43032#43124#0" expanded="true" />
+            <element signature="e#43195#43515#0" expanded="true" />
+            <element signature="e#43659#44114#0" expanded="true" />
+            <element signature="e#47011#48607#0" expanded="true" />
+            <element signature="e#48847#50625#0" expanded="true" />
+            <element signature="e#51925#52474#0" expanded="true" />
+            <element signature="e#52569#52939#0" expanded="true" />
+            <element signature="e#53044#53397#0" expanded="true" />
+            <element signature="e#53504#53666#0" expanded="true" />
+            <element signature="e#53828#53933#0" expanded="true" />
+            <element signature="e#55641#56159#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test_suite.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2456" column="0" selection-start-line="2456" selection-start-column="0" selection-end-line="2456" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -683,36 +859,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mem_pool.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.4570637">
-          <caret line="19" column="22" selection-start-line="19" selection-start-column="22" selection-end-line="19" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="34" column="31" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mem_pool.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="3.2234042">
-          <caret line="824" column="5" selection-start-line="824" selection-start-column="5" selection-end-line="824" selection-end-column="5" />
-          <folding>
-            <element signature="e#46#65#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test_suite.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.68085104">
-          <caret line="2464" column="0" selection-start-line="2464" selection-start-column="0" selection-end-line="2464" selection-end-column="0" />
+        <state vertical-scroll-proportion="2.3072917">
+          <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="63" selection-end-column="0" />
           <folding />
         </state>
       </provider>
